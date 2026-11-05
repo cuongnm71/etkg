@@ -1,7 +1,4 @@
-name: Test the project and update the test-date
-
-permissions:
-  contents: write
+name: Test the project
 
 on:
   schedule:
@@ -30,10 +27,8 @@ jobs:
     steps:
       - name: 'Checkout Repo'
         uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-      - name: 'Generate key and update the test time'
+
+      - name: 'Generate key and test'
         run: |
           ACCOUNT=0
           KEY=1
@@ -49,9 +44,6 @@ jobs:
           if [ -z "$TARGET_BRANCH" ]; then
             TARGET_BRANCH="main"
           fi
-          
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
           
           git clone -b $TARGET_BRANCH --depth 1 https://github.com/shadowcopyrz/etkg.git
           cd etkg
@@ -104,16 +96,3 @@ jobs:
             echo -e "\nKeys generated:" >> $GITHUB_STEP_SUMMARY
             cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
           fi
-          
-          echo 
-          cd ${{ github.workspace }}
-          sed -i 's/\(last_test-\)[0-9]\{2\}.[0-9]\{2\}.[0-9]\{4\}_[0-9]\{2\}:[0-9]\{2\}_UTC+3/\1'"$(date -u --date='3 hours' +"%d.%m.%Y_%H:%M_UTC+3")"'/' README.md
-          sudo rm -r etkg
-          git pull
-          git commit -m "Update test time" -a
-          
-      - name: Push changes to the repo
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
