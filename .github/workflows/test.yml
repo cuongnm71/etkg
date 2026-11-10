@@ -98,21 +98,21 @@ jobs:
             cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
           fi
 
-          # Send generated key to Telegram
-          python3 -c "
-          import os, glob, re, json, urllib.request
+          # Create send_telegram.py and execute
+          cat << 'EOF' > send_telegram.py
+          import os, glob, re, json, sys, urllib.request
 
           bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
           chat_id = os.environ.get('TELEGRAM_CHAT_ID')
 
           if not bot_token or not chat_id:
               print('[WARN] Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID secret.')
-              exit(0)
+              sys.exit(0)
 
           key_files = glob.glob('*KEYS.txt')
           if not key_files:
               print('[WARN] No KEYS.txt file found.')
-              exit(0)
+              sys.exit(0)
 
           with open(key_files[0], 'r', encoding='utf-8', errors='ignore') as f:
               content = f.read()
@@ -126,19 +126,21 @@ jobs:
           lic_date = date_m.group(1).strip() if date_m else 'N/A'
 
           msg = (
-              f'🔑 *ESET License Key định kỳ (Ngày 03 hàng tháng)*\n\n'
+              '🔑 *ESET License Key định kỳ (Ngày 03 hàng tháng)*\n\n'
               f'🛡 *Gói bản quyền:* `{lic_name}`\n'
               f'🔑 *License Key:* `{lic_key}`\n'
               f'📅 *Hạn dùng:* `{lic_date}`\n\n'
-              f'_(Nhấp vào mã key để copy nhanh)_'
+              '_(Nhấp vào mã key để copy nhanh)_'
           )
 
           url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
-          payload = json.dumps({'chat_id': chat_id, 'text': msg, 'parse_mode': 'Markdown'}).encode('utf-8')
+          payload = json.dumps({'chat_id': chat_id, 'text': msg, 'parse_mode': 'Markdown'}, ensure_ascii=False).encode('utf-8')
           req = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
           try:
               with urllib.request.urlopen(req) as resp:
                   print('[INFO] Successfully sent key to Telegram:', resp.read().decode('utf-8'))
           except Exception as e:
               print('[ERROR] Failed to send key to Telegram:', e)
-          "
+          EOF
+
+          python3 send_telegram.py
