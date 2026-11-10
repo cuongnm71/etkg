@@ -29,9 +29,9 @@ lic_date = date_m.group(1).strip() if date_m else 'N/A'
 
 msg = (
     '🔑 *ESET License Key định kỳ (Ngày 03 hàng tháng)*\n\n'
-    f'🛡 *Gói bản quyền:* `{lic_name}`\n'
+    f'🛡 *Gói bản quyền:* {lic_name}\n'
     f'🔑 *License Key:* `{lic_key}`\n'
-    f'📅 *Hạn dùng:* `{lic_date}`\n\n'
+    f'📅 *Hạn dùng:* {lic_date}\n\n'
     '_(Nhấp vào mã key để copy nhanh)_'
 )
 
