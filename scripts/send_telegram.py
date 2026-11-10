@@ -28,13 +28,13 @@ lic_key = key_m.group(1).strip() if key_m else 'N/A'
 lic_date = date_m.group(1).strip() if date_m else 'N/A'
 
 msg = (
-    '🔑 *ESET License Key định kỳ (Ngày 03 hàng tháng)*\n\n'
-    f'🛡 *Gói bản quyền:* {lic_name}\n'
-    f'🔑 *License Key:* `{lic_key}`\n'
-    f'📅 *Hạn dùng:* {lic_date}\n\n'
-    '_(Nhấp vào mã key để copy nhanh)_'
+    '<b>🔑 ESET License Key định kỳ (Ngày 03 hàng tháng)</b>\n\n'
+    f'🛡 <b>Gói bản quyền:</b> {lic_name}\n'
+    f'🔑 <b>License Key:</b> <code>{lic_key}</code>\n'
+    f'📅 <b>Hạn dùng:</b> {lic_date}\n\n'
+    '<i>(Nhấp vào mã key để copy nhanh)</i>'
 )
 
 url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
-res = requests.post(url, json={'chat_id': chat_id, 'text': msg, 'parse_mode': 'Markdown'}, timeout=15)
+res = requests.post(url, json={'chat_id': chat_id, 'text': msg, 'parse_mode': 'HTML'}, timeout=15)
 print('[INFO] Telegram response:', res.text)
