@@ -54,7 +54,7 @@ jobs:
           sudo apt install -y python3-pip python3-venv
           python3 -m venv venv
           source venv/bin/activate
-          pip install -r requirements.txt
+          pip install requests -r requirements.txt
           
           echo "Test results:" >> $GITHUB_STEP_SUMMARY
           
@@ -100,10 +100,12 @@ jobs:
 
           # Create send_telegram.py and execute
           cat << 'EOF' > send_telegram.py
-          import os, glob, re, json, sys, urllib.request
+          import os, glob, re, sys, requests
 
-          bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
-          chat_id = os.environ.get('TELEGRAM_CHAT_ID')
+          bot_token = os.environ.get('TELEGRAM_BOT_TOKEN', '').strip('﻿
+ 	'"')
+          chat_id = os.environ.get('TELEGRAM_CHAT_ID', '').strip('﻿
+ 	'"')
 
           if not bot_token or not chat_id:
               print('[WARN] Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID secret.')
@@ -134,13 +136,8 @@ jobs:
           )
 
           url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
-          payload = json.dumps({'chat_id': chat_id, 'text': msg, 'parse_mode': 'Markdown'}, ensure_ascii=False).encode('utf-8')
-          req = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
-          try:
-              with urllib.request.urlopen(req) as resp:
-                  print('[INFO] Successfully sent key to Telegram:', resp.read().decode('utf-8'))
-          except Exception as e:
-              print('[ERROR] Failed to send key to Telegram:', e)
+          res = requests.post(url, json={'chat_id': chat_id, 'text': msg, 'parse_mode': 'Markdown'}, timeout=15)
+          print('[INFO] Telegram response:', res.text)
           EOF
 
           python3 send_telegram.py
